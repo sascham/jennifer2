@@ -1286,14 +1286,13 @@
                 }
             } else {
                 input.className = "test-input wrong";
-                feedback.innerHTML = "❌ Falsch! Richtig wäre: <b>" + correctAnswer + "</b>";
+                feedback.innerHTML = "❌ Falsch! Richtig wäre: <b>" + correctAnswer + "</b><br>Von vorne!";
                 feedback.className = "test-feedback wrong";
                 testWrong++;
-                wrongQuestions.push(testQuestions[testIndex]);
                 streak = 0;
                 playWrongSound();
                 showLetterPractice(correctAnswer);
-                return; // Don't auto-advance, wait for letter practice
+                return; // Don't auto-advance, wait for letter practice then reset
             }
             testAnswered++;
             updateTestScore();
@@ -1399,11 +1398,17 @@
 
             if (allCorrect) {
                 playCorrectSound();
-                // Hide letter practice and advance
+                // Hide letter practice and reset to beginning
                 setTimeout(() => {
                     document.getElementById('letter-practice').classList.remove('active');
-                    advanceAfterAnswer();
-                }, 800);
+                    shuffleArray(testQuestions);
+                    testIndex = 0;
+                    testCorrect = 0;
+                    testWrong = 0;
+                    testAnswered = 0;
+                    streak = 0;
+                    updateTestQuestion();
+                }, 1000);
             } else {
                 playWrongSound();
                 // Clear wrong boxes and try again
@@ -1427,18 +1432,8 @@
                 testIndex++;
                 updateTestQuestion();
             } else {
-                if (wrongQuestions.length > 0) {
-                    testRound++;
-                    testQuestions = [...wrongQuestions];
-                    shuffleArray(testQuestions);
-                    wrongQuestions = [];
-                    testIndex = 0;
-                    updateTestQuestion();
-                    document.getElementById('test-feedback').innerHTML = "🔄 Runde " + testRound + " – jetzt kommen die falschen Fragen nochmal!";
-                    document.getElementById('test-feedback').className = "test-feedback wrong";
-                } else {
-                    showTestResult();
-                }
+                // All done without errors!
+                showTestResult();
             }
         }
 
